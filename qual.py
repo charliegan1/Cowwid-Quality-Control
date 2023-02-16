@@ -2,7 +2,6 @@
 
 import openpyxl
 import pandas as pd
-from cryptography.fernet import Fernet, InvalidToken
 import os
 from pathlib import Path
 from glob import iglob
@@ -27,10 +26,6 @@ path_of_the_directory_charlie = ('/Users/charlesgan/Library/Mobile Documents/'
                                  'com~apple~CloudDocs/Eawag Covid Work/ExcelResults_backup')
                                  
 path_of_the_directory = ('/Volumes/PCR_Cowwid/01_dPCR_data/01_Stilla/NCX_ExpandedSampling/ExcelResults')
-
-key_directory = ('/Users/charlesgan/Library/Mobile Documents/'
-                 'com~apple~CloudDocs/Eawag Covid Work/'
-                 'ExcelResults_backup/cyptiq.key')
 
 path_N2 = ('/Volumes/PCR_Cowwid/01_dPCR_data/01_Stilla/NCX_GrippeAssay/RealWorldData/ExcelResults/LatestFluData.csv')
 
@@ -250,41 +245,6 @@ N2_conc = pd.read_csv(path_N2)
 N2_conc['sample_date'] = pd.to_datetime(N2_conc['sample_date'])
 N2_conc.sort_values(by=['sample_date'], inplace=True)
 
-#%% Functions for encryption
-
-def _get_cryptokey():
-    with open(key_directory, "rb") as mykey:
-        cryptokey = mykey.read()
-    return Fernet(cryptokey)
-
-def lock(file, silent=False):
-
-    fernet = _get_cryptokey()
-
-    with open(file, "rb") as unlocked_file:
-        if silent == False:
-            print(f"Locking {unlocked_file}...")
-        bin_data = unlocked_file.read()
-
-        encrypted = fernet.encrypt(bin_data)
-
-    with open(file, "wb") as unlocked_file:
-        unlocked_file.write(encrypted)
-
-def unlock(file, silent=False):
-    fernet = _get_cryptokey()
-
-    with open(file, "rb") as locked_file:
-        if silent == False:
-            print(f"Unlocking {locked_file}...")
-        bin_data = locked_file.read()
-    try:
-        decrypted = fernet.decrypt(bin_data)
-    except (InvalidToken, TypeError):
-        pass
-    else:
-        with open(file, "wb") as locked_file:
-            locked_file.write(decrypted)
 #%% Toggles for which directory to take from, locally (testing) or network (real)
 if status == 'testing' :
     # Save all .xlsx files paths and modification time into paths
@@ -307,7 +267,6 @@ if status == 'real' :
 
     # Get the last modified file and unlock
     last = str(paths[0][1])
-    unlock(last)
 # %% Compile most recent compiled results file available
 last_name = last[-15:-5:1]
 print(last_name)
