@@ -861,7 +861,13 @@ if (nd == 'Series([], )') == True:
 lod = '<b>Samples below LOQ are:</b> <br>' + lod
 nd = '<b>Samples below LOD are:</b> <br>' + nd
 
-dilution_text = ('<b>The current dilutions are:</b> <br><br> '
+if td == 'Thursday' :
+    dilution_text = ('<b>The current dilutions are:</b> <br><br> '
+                        'Lugano: '+ dil_05 + 'x<br>'
+                        'Zurich: ' + dil_10 + 'x<br>'
+                        'Geneva: ' + dil_16 + 'x<br>')
+else:
+    dilution_text = ('<b>The current dilutions are:</b> <br><br> '
                     'Lugano: '+ dil_05 + 'x<br>'
                     'Zurich: ' + dil_10 + 'x<br>'
                     'Geneva: ' + dil_16 + 'x<br>'
