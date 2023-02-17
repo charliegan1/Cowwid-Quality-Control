@@ -466,12 +466,16 @@ line_fail_month = figure(title="Failure Rate by Day", x_axis_label="Run Date", y
                     x_axis_type='datetime')
 
 df_Q_month = df_month[(df_month.PCR_ID == 'Q')]
+df_U_month = df_month[(df_month.PCR_ID == 'U')]
+df_V_month = df_month[(df_month.PCR_ID == 'V')]
 df_W_month = df_month[(df_month.PCR_ID == 'W')]
 df_Y_month = df_month[(df_month.PCR_ID == 'Y')]
 df_Z_month = df_month[(df_month.PCR_ID == 'Z')]
 
 # add multiple renderers
 line_fail_month.scatter(df_Q_month['run_date'], df_Q_month['failure_rate'], legend_label="Quinella", color="orchid", line_width=3)
+line_fail_month.scatter(df_U_month['run_date'], df_U_month['failure_rate'], legend_label="Ulysses", color="cyan", line_width=3)
+line_fail_month.scatter(df_V_month['run_date'], df_V_month['failure_rate'], legend_label="Vreni", color="mediumslateblue", line_width=3)
 line_fail_month.scatter(df_W_month['run_date'], df_W_month['failure_rate'], legend_label="Winston", color="dodgerblue", line_width=3)
 line_fail_month.scatter(df_Y_month['run_date'], df_Y_month['failure_rate'], legend_label="Yodok", color="sandybrown", line_width=3)
 line_fail_month.scatter(df_Z_month['run_date'], df_Z_month['failure_rate'], legend_label="Zelda", color="olivedrab", line_width=3)
