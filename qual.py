@@ -312,21 +312,21 @@ df_all = df
 recent_day = max(df["run_date"]) 
 delta_week = timedelta(days=6)
 start_date = recent_day - delta_week
-mask_week = (df['run_date'] >= start_date) & (df['run_date'] <= recent_day)
+mask_week = (df['sample_date'] >= start_date) & (df['sample_date'] <= recent_day)
 df_week = df[mask_week]
 
 # Mask biweekly
 recent_day = max(df["run_date"]) 
 delta_week = timedelta(days=13) 
 start_date = recent_day - delta_week
-mask_biweek = (df['run_date'] >= start_date) & (df['run_date'] <= recent_day)
+mask_biweek = (df['sample_date'] >= start_date) & (df['sample_date'] <= recent_day)
 df_biweek = df[mask_biweek]
 
 # Mask monthly
 recent_day = max(df["run_date"]) 
 delta_week = timedelta(days=31) 
 start_date = recent_day - delta_week
-mask_month = (df['run_date'] >= start_date) & (df['run_date'] <= recent_day)
+mask_month = (df['sample_date'] >= start_date) & (df['sample_date'] <= recent_day)
 df_month = df[mask_month]
 mask_monthN2 = (N2_conc['sample_date'] >= start_date) & (N2_conc['sample_date'] <= recent_day)
 N2_conc = N2_conc[mask_monthN2]
@@ -532,7 +532,7 @@ line_recover_month.xaxis.axis_label_text_font_size = "12pt"
 line_recover_month.yaxis.axis_label_text_font_size = "12pt"
 line_recover_month.width = 400
 line_recover_month.height = 400
-line_recover_month.legend.location = 'top_right'
+line_recover_month.legend.location = 'top_left'
 line_recover_month.y_range = Range1d(0, 60)
 
 #! Plot 4
