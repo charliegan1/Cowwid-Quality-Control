@@ -162,7 +162,7 @@ df_loq_lod = df[['sample_date','sample_name', 'quantification_flag [{Q: >LOQ,D: 
 mask = (df_loq_lod['sample_date'] >= start_date) & (df_loq_lod['sample_date'] <= recent_day)
 df_loq_lod = df_loq_lod[mask]
 
-df["LOQ"] = 27.4 # [gc/reaction]
+df["LOQ"] = 27.4/25*5*80/40*1000 # [gc/reaction]
 
 # Index last weeks data for continual weekly updates
 recent_day = max(df["sample_date"]) # can change here
