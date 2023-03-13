@@ -21,13 +21,15 @@ pd.set_option('display.max_rows', None)
 pd.set_option('display.max_columns', None)
 pd.set_option('display.width', None)
 
-# %% Define path of backup folder, Q drive, encryption key, and N2 data
+# %% Define path of backup folder, Q drive, and N2 data
 path_of_the_directory_charlie = ('/Users/charlesgan/Library/Mobile Documents/'
                                  'com~apple~CloudDocs/Eawag Covid Work/ExcelResults_backup')
                                  
 path_of_the_directory = ('/Volumes/PCR_Cowwid/01_dPCR_data/01_Stilla/NCX_ExpandedSampling/ExcelResults')
 
 path_N2 = ('/Volumes/PCR_Cowwid/01_dPCR_data/01_Stilla/NCX_GrippeAssay/RealWorldData/ExcelResults/LatestFluData.csv')
+
+path_BAG_data = ('/Volumes/BAG_Data/')
 
 # %%Toggle which code to be run
 status = 'real' # 'testing' or 'real'
@@ -162,7 +164,7 @@ df_loq_lod = df[['sample_date','sample_name', 'quantification_flag [{Q: >LOQ,D: 
 mask = (df_loq_lod['sample_date'] >= start_date) & (df_loq_lod['sample_date'] <= recent_day)
 df_loq_lod = df_loq_lod[mask]
 
-df["LOQ"] = 27.4/25*5*80/40*1000 # [gc/reaction]
+df["LOQ"] = 27.4/25*5*80*1000 # [gc/reaction]
 
 # Index last weeks data for continual weekly updates
 recent_day = max(df["sample_date"]) # can change here
@@ -214,7 +216,7 @@ if full == 1:
     now = datetime.now()
     now = now.strftime("%Y%m%d")
     meta = 'ARA'
-    dir = '/Volumes/EA-Daten/Messdaten/PCR_Cowwid/01_dPCR_data/01_Stilla/NCX_ExpandedSampling/Exporter/'
+    dir = path_BAG_data
 
     pathname1 = f'{dir}{now}_EAWAG_{meta}.csv'
     df_meta_1.to_csv(path_or_buf = pathname1, sep = ';', header = True, index = False)
@@ -234,7 +236,7 @@ else:
     now = datetime.now()
     now = now.strftime("%Y%m%d")
     meta = 'Results'
-    dir = '/Volumes/BAG_Data/' # maybe change
+    dir = path_BAG_data
     pathname4 = f'{dir}{now}_EAWAG_{meta}.csv'
     df_meta_4.to_csv(path_or_buf = pathname4, sep = ';', header = True, index = False)
 
@@ -271,7 +273,7 @@ if status == 'real' :
 last_name = last[-15:-5:1]
 print(last_name)
 
-if status_data == 'all data' : 
+if status_data == 'all_data' : 
 # Create DFs using master sheet with all data
     df6 = pd.DataFrame
     df5 = pd.DataFrame
@@ -295,8 +297,8 @@ if status_data == 'recent' :
     df6.to_csv('recent.csv')
     
 # Load all data to dataframe to create source for dashboard
-if status_data == 'all data' : 
-    df = pd.read_csv('data_all.csv')
+if status_data == 'all_data' : 
+    df = result
 if status_data == 'recent' : 
     df = df6
 #%% Calculate the failure rate and mask all the time frames of interest
@@ -340,10 +342,42 @@ if status_data == 'all data':
     df_all = df[mask_all]
 
 df_all=df_all.dropna(subset=['PCR_ID'])
+# %% Merging dilution to create LOQ
+def wwtp_to_number(wwtp):
+    if wwtp == "ARA Werdhölzli":
+        return 26101
+    elif wwtp == "CDA Lugano":
+        return 515100
+    elif wwtp == "STEP Aire":
+        return 664301
+    elif wwtp == "ARA Chur":
+        return 390101
+    elif wwtp == "ARA Altenrhein":
+        return 323700
+    elif wwtp == "ARA Sensetal":
+        return 66700
+    else:
+        return 11111111
+
+df_all["ARA_ID"] = df_all["wwtp"].apply(wwtp_to_number)
+df_BAG_supp = df_all.rename(columns={'sample_date': 'date_collection'})
+df_BAG_supp['date_collection'] = df_BAG_supp['date_collection'].dt.strftime('%Y-%m-%d')
+df_BAG_supp = df_BAG_supp[(df_BAG_supp['dilution'] != 1) & (df_BAG_supp['dilution'].notna()) & (df_BAG_supp['sample_type'] == 'ww')& (df_BAG_supp['spiked'] == False)& (df_BAG_supp['replicate'] == 'A')& (df_BAG_supp['dilution'] != 'NaN')]
+
+df_merged_print = pd.merge(df_meta_4, df_BAG_supp[['ARA_ID', 'date_collection', 'dilution','volume_mL']], on=['ARA_ID','date_collection'], how='left')
+df_merged_print['LOQ'] = df_merged_print['LOQ']/df_merged_print['volume_mL']
+df_merged_print = df_merged_print.rename(columns = {'LOQ':'LOQ_set'})
+df_merged_print['LOQ']=df_merged_print['LOQ_set']*df_merged_print['dilution']
+df_merged_print = df_merged_print.rename(columns = {'conc_cov_target_N1_N2_E_M_S':'conc_cov_target_N1_N2_E_M_S_set'})
+
+df_merged_print['conc_cov_target_N1_N2_E_M_S'] = np.where(df_merged_print['conc_cov_target_N1_N2_E_M_S_set'] < df_merged_print['LOQ'], df_merged_print['LOQ'], df_merged_print['conc_cov_target_N1_N2_E_M_S_set'])
+
+df_merged_print = df_merged_print.drop(['conc_cov_target_N1_N2_E_M_S_set', 'LOQ_set','volume_mL','dilution'], axis=1)
+df_merged_print.to_csv(path_or_buf = pathname4, sep = ';', header = True, index = False)
 # %% Create all plots for website
 
 #! Plot 1 Trend of SARS N1 N2
-path = '/Volumes/BAG_Data/'
+path = path_BAG_data
 # Save all .xlsx files paths and modification time into paths
 paths = [(p.stat().st_mtime, p) for p in Path(path).iterdir() if p.suffix == ".csv"]
 # Sort them by the modification time
