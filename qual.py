@@ -309,6 +309,8 @@ df['chip_counts'] = df.groupby(['PCR_ID', 'run_date'])['failure'].transform('cou
 df['fail_counts'] = df.groupby(['PCR_ID', 'run_date'])['failure'].transform('sum')
 df['failure_rate'] = df['fail_counts']/df['chip_counts']
 df_all = df
+df_mhv = df_all.groupby(['SampleName', 'wwtp','sample_date','sample_type']).mean()
+df_all.to_csv('/Users/charlesgan/Library/Mobile Documents/com~apple~CloudDocs/Eawag Covid Work/PMMOV/all.csv')
 
 # Mask week
 recent_day = max(df["run_date"]) 
@@ -388,6 +390,7 @@ print(last)
 
 SARS_conc = pd.DataFrame()
 SARS_conc = pd.read_csv(last, sep = ';')
+SARS_conc.to_csv("/Users/charlesgan/Library/Mobile Documents/com~apple~CloudDocs/Eawag Covid Work/PMMOV/alldataMHV.csv")
 SARS_conc['date_collection'] = pd.to_datetime(SARS_conc['date_collection'])
 trend_df = pd.DataFrame()
 delt = (max(SARS_conc['date_collection']) - timedelta(days = 95))
