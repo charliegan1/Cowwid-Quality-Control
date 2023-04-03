@@ -10,10 +10,11 @@ from datetime import date, datetime, timedelta
 import numpy as np
 from bokeh.models import ColumnDataSource, Whisker, BasicTicker, ColorBar, LinearColorMapper, PrintfTickFormatter, Span
 from bokeh.plotting import figure, show, save
-from bokeh.transform import factor_cmap
+from bokeh.transform import factor_cmap, linear_cmap
 from bokeh.models import Range1d, Div, SingleIntervalTicker
 from bokeh.io import output_file, show
 from bokeh.layouts import gridplot, row, layout
+from bokeh.palettes import Inferno256
 from calendar import MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SUNDAY
 from scipy.stats import linregress
 
